@@ -22,7 +22,12 @@ export function PendingFriendsList() {
   const users = useTestUsers();
   return (
     <div className="flex flex-col divide-y">
-      <h2 className="text-sm text-muted-foreground p-2.5">Pending Friends</h2>
+      <h2 className="text-xs font-medium text-muted-foreground p-2.5">
+        Pending Friends
+      </h2>
+      {users.length === 0 && (
+        <FriendsListEmpty>No Pending Friend Requests</FriendsListEmpty>
+      )}
       {users.map((user, index) => (
         <FriendItem key={index} username={user.username} image={user.image}>
           <IconButton
@@ -41,7 +46,12 @@ export function AcceptedFriendsList() {
   const users = useTestUsers();
   return (
     <div className="flex flex-col divide-y">
-      <h2 className="text-sm text-muted-foreground p-2.5">Accepted</h2>
+      <h2 className="text-xs font-medium text-muted-foreground p-2.5">
+        Accepted
+      </h2>
+      {users.length === 0 && (
+        <FriendsListEmpty>No friends yet</FriendsListEmpty>
+      )}
       {users.map((user, index) => (
         <FriendItem key={index} username={user.username} image={user.image}>
           <IconButton title="Start DM" icon={<MessageCircleIcon />} />
@@ -52,6 +62,14 @@ export function AcceptedFriendsList() {
           />
         </FriendItem>
       ))}
+    </div>
+  );
+}
+
+function FriendsListEmpty({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="p-4 bg-muted/50 text-center text-sm text-muted-foreground">
+      {children}
     </div>
   );
 }
