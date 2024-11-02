@@ -1,5 +1,11 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 import { useQuery } from "convex/react";
 import { CheckIcon, MessageCircleIcon, XIcon } from "lucide-react";
 import { api } from "../../../../convex/_generated/api";
@@ -19,22 +25,12 @@ export function PendingFriendsList() {
       <h2 className="text-sm text-muted-foreground p-2.5">Pending Friends</h2>
       {users.map((user, index) => (
         <FriendItem key={index} username={user.username} image={user.image}>
-          <Button
-            className="rounded-full bg-green-100"
-            variant="outline"
-            size="icon"
-          >
-            <CheckIcon />
-            <span className="sr-only">Accept</span>
-          </Button>
-          <Button
-            className="rounded-full bg-red-100"
-            variant="outline"
-            size="icon"
-          >
-            <XIcon />
-            <span className="sr-only">Reject</span>
-          </Button>
+          <IconButton
+            title="Accept"
+            icon={<CheckIcon />}
+            className="bg-green-100"
+          />
+          <IconButton title="Reject" icon={<XIcon />} className="bg-red-100" />
         </FriendItem>
       ))}
     </div>
@@ -48,21 +44,41 @@ export function AcceptedFriendsList() {
       <h2 className="text-sm text-muted-foreground p-2.5">Accepted</h2>
       {users.map((user, index) => (
         <FriendItem key={index} username={user.username} image={user.image}>
-          <Button className="rounded-full" variant="outline" size="icon">
-            <MessageCircleIcon />
-            <span className="sr-only">Start DM</span>
-          </Button>
-          <Button
-            className="rounded-full bg-red-100"
-            variant="outline"
-            size="icon"
-          >
-            <XIcon />
-            <span className="sr-only">Remove</span>
-          </Button>
+          <IconButton title="Start DM" icon={<MessageCircleIcon />} />
+          <IconButton
+            title="Remove Friend"
+            icon={<XIcon />}
+            className="bg-red-100"
+          />
         </FriendItem>
       ))}
     </div>
+  );
+}
+
+function IconButton({
+  title,
+  className,
+  icon,
+}: {
+  title: string;
+  className?: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          className={cn("rounded-full", className)}
+          variant="outline"
+          size="icon"
+        >
+          {icon}
+          <span className="sr-only">{title}</span>
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>{title}</TooltipContent>
+    </Tooltip>
   );
 }
 
