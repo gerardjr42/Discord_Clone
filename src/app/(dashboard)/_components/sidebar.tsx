@@ -10,7 +10,6 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarGroupAction,
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
@@ -19,12 +18,25 @@ import {
 } from "@/components/ui/sidebar";
 import { SignOutButton } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
-import { PlusIcon, User2Icon } from "lucide-react";
+import { User2Icon } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { api } from "../../../../convex/_generated/api";
+import { NewDirectMessage } from "./new-direct-message";
+
+const useTestDirectMessage = () => {
+  const user = useQuery(api.functions.user.get);
+  if (!user) {
+    return [];
+  }
+  return [user, user, user];
+};
 
 export default function DashboardSidebar() {
   const user = useQuery(api.functions.user.get);
+  const directMessages = useTestDirectMessage();
+  const pathname = usePathname();
+
   if (!user) {
     return null;
   }
@@ -35,8 +47,8 @@ export default function DashboardSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="/friends">
+                <SidebarMenuButton asChild isActive={pathname === "/"}>
+                  <Link href="/">
                     <User2Icon />
                     Friends
                   </Link>
@@ -46,10 +58,29 @@ export default function DashboardSidebar() {
           </SidebarGroupContent>
           <SidebarGroup>
             <SidebarGroupLabel>Direct Messages</SidebarGroupLabel>
-            <SidebarGroupAction>
-              <PlusIcon />
-              <span className="sr-only">New Direct Message</span>
-            </SidebarGroupAction>
+            <NewDirectMessage />
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {directMessages.map((directMessages) => (
+                  <SidebarMenuItem key={directMessages._id}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === `/dms/${directMessages._id}`}
+                    >
+                      <Link href={`/dms/${directMessages._id}`}>
+                        <Avatar className="size-6">
+                          <AvatarImage src={directMessages.image} />
+                          <AvatarFallback>
+                            {directMessages.username[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                        <p className="font-medium">{directMessages.username}</p>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
           </SidebarGroup>
         </SidebarGroup>
       </SidebarContent>
