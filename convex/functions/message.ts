@@ -1,20 +1,56 @@
 import { v } from "convex/values";
-import { mutation, query } from "../_generated/server";
+import { authenticatedMutation, authenticatedQuery } from "./helpers";
 
 //fetches data
-export const list = query({
-  handler: async (ctx) => {
-    return await ctx.db.query("messages").collect();
+export const list = authenticatedQuery({
+  args: {
+    directMessage: v.id("directMessages"),
+  },
+  handler: async (ctx, { directMessage }) => {
+    const member = await ctx.db
+      .query("directMessageMembers")
+      .withIndex("by_direct_message_user", (q) =>
+        q.eq("directMessage", directMessage).eq("user", ctx.user._id)
+      )
+      .first();
+    if (!member) {
+      throw new Error("User is not a member of this direct message");
+    }
+    const messages = await ctx.db
+      .query("messages")
+      .withIndex("by_direct_message", (q) =>
+        q.eq("directMessage", directMessage)
+      )
+      .collect();
+    return await Promise.all(
+      messages.map(async (message) => {
+        const sender = await ctx.db.get(message.sender);
+        return { ...message, sender };
+      })
+    );
   },
 });
 
 //modifies data
-export const create = mutation({
+export const create = authenticatedMutation({
   args: {
-    sender: v.string(),
     content: v.string(),
+    directMessage: v.id("directMessages"),
   },
-  handler: async (ctx, { sender, content }) => {
-    await ctx.db.insert("messages", { sender, content });
+  handler: async (ctx, { content, directMessage }) => {
+    const member = await ctx.db
+      .query("directMessageMembers")
+      .withIndex("by_direct_message_user", (q) =>
+        q.eq("directMessage", directMessage).eq("user", ctx.user._id)
+      )
+      .first();
+    if (!member) {
+      throw new Error("User is not a member of this direct message");
+    }
+    await ctx.db.insert("messages", {
+      content,
+      directMessage,
+      sender: ctx.user._id,
+    });
   },
 });
