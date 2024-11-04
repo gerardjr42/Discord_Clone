@@ -1,5 +1,7 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
+
+import { Toaster } from "@/components/ui/sonner";
 import { ConvexClientProvider } from "./convex-client-provider";
 import "./globals.css";
 
@@ -17,7 +19,10 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ClerkProvider dynamic>
-          <ConvexClientProvider>{children}</ConvexClientProvider>
+          <ConvexClientProvider>
+            {children}
+            <Toaster />
+          </ConvexClientProvider>
         </ClerkProvider>
       </body>
     </html>
