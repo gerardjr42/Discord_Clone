@@ -1,4 +1,5 @@
 import { v } from "convex/values";
+import { internal } from "../_generated/api";
 import { authenticatedMutation, authenticatedQuery } from "./helpers";
 
 //fetches data
@@ -52,5 +53,25 @@ export const create = authenticatedMutation({
       directMessage,
       sender: ctx.user._id,
     });
+    await ctx.scheduler.runAfter(0, internal.functions.typing.remove, {
+      directMessage,
+      user: ctx.user._id,
+    });
+  },
+});
+
+export const remove = authenticatedMutation({
+  args: {
+    id: v.id("messages"),
+  },
+  handler: async (ctx, { id }) => {
+    const message = await ctx.db.get(id);
+    if (!message) {
+      throw new Error("Message not found");
+    }
+    if (message.sender !== ctx.user._id) {
+      throw new Error("User is not the sender of this message");
+    }
+    await ctx.db.delete(id);
   },
 });

@@ -24,17 +24,9 @@ import { usePathname } from "next/navigation";
 import { api } from "../../../../convex/_generated/api";
 import { NewDirectMessage } from "./new-direct-message";
 
-const useTestDirectMessage = () => {
-  const user = useQuery(api.functions.user.get);
-  if (!user) {
-    return [];
-  }
-  return [user, user, user];
-};
-
 export default function DashboardSidebar() {
   const user = useQuery(api.functions.user.get);
-  const directMessages = useTestDirectMessage();
+  const directMessages = useQuery(api.functions.dm.list);
   const pathname = usePathname();
 
   if (!user) {
@@ -61,20 +53,22 @@ export default function DashboardSidebar() {
             <NewDirectMessage />
             <SidebarGroupContent>
               <SidebarMenu>
-                {directMessages.map((directMessages) => (
-                  <SidebarMenuItem key={directMessages._id}>
+                {directMessages?.map((directMessage) => (
+                  <SidebarMenuItem key={directMessage._id}>
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname === `/dms/${directMessages._id}`}
+                      isActive={pathname === `/dms/${directMessage._id}`}
                     >
-                      <Link href={`/dms/${directMessages._id}`}>
+                      <Link href={`/dms/${directMessage._id}`}>
                         <Avatar className="size-6">
-                          <AvatarImage src={directMessages.image} />
+                          <AvatarImage src={directMessage.user.image} />
                           <AvatarFallback>
-                            {directMessages.username[0]}
+                            {directMessage.user.username[0]}
                           </AvatarFallback>
                         </Avatar>
-                        <p className="font-medium">{directMessages.username}</p>
+                        <p className="font-medium">
+                          {directMessage.user.username}
+                        </p>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
