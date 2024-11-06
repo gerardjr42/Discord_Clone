@@ -226,8 +226,8 @@ function ImagePreview({
       <Image
         src={URL.createObjectURL(file)}
         alt="Attachment"
-        width={300}
-        height={300}
+        layout="fill"
+        objectFit="cover"
       />
       {isUploading && (
         <div className="absolute inset-0 flex items-center justify-center bg-background/50">
