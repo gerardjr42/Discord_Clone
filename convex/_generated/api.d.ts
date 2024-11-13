@@ -15,8 +15,10 @@ import type {
 } from "convex/server";
 import type * as functions_dm from "../functions/dm.js";
 import type * as functions_friend from "../functions/friend.js";
+import type * as functions_friends from "../functions/friends.js";
 import type * as functions_helpers from "../functions/helpers.js";
 import type * as functions_message from "../functions/message.js";
+import type * as functions_storage from "../functions/storage.js";
 import type * as functions_typing from "../functions/typing.js";
 import type * as functions_user from "../functions/user.js";
 import type * as http from "../http.js";
@@ -32,8 +34,10 @@ import type * as http from "../http.js";
 declare const fullApi: ApiFromModules<{
   "functions/dm": typeof functions_dm;
   "functions/friend": typeof functions_friend;
+  "functions/friends": typeof functions_friends;
   "functions/helpers": typeof functions_helpers;
   "functions/message": typeof functions_message;
+  "functions/storage": typeof functions_storage;
   "functions/typing": typeof functions_typing;
   "functions/user": typeof functions_user;
   http: typeof http;
