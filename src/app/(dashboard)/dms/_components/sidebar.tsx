@@ -1,3 +1,5 @@
+"use client";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -21,10 +23,10 @@ import { useQuery } from "convex/react";
 import { User2Icon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { api } from "../../../../convex/_generated/api";
+import { api } from "../../../../../convex/_generated/api";
 import { NewDirectMessage } from "./new-direct-message";
 
-export default function DashboardSidebar() {
+export default function DMSidebar() {
   const user = useQuery(api.functions.user.get);
   const directMessages = useQuery(api.functions.dm.list);
   const pathname = usePathname();
@@ -33,7 +35,7 @@ export default function DashboardSidebar() {
     return null;
   }
   return (
-    <Sidebar>
+    <Sidebar className="left-12">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
