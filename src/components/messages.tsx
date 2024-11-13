@@ -1,3 +1,4 @@
+import { useImageUpload } from "@/hooks/use-image-upload";
 import { useMutation, useQuery } from "convex/react";
 import { FunctionReturnType } from "convex/server";
 import {
@@ -8,7 +9,7 @@ import {
   TrashIcon,
 } from "lucide-react";
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
@@ -108,36 +109,18 @@ function MessageInput({ id }: { id: Id<"directMessages" | "channels"> }) {
   const [content, setContent] = useState("");
   const sendMessage = useMutation(api.functions.message.create);
   const sendTypingIndicator = useMutation(api.functions.typing.upsert);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const generateUploadUrl = useMutation(
-    api.functions.storage.generateUploadUrl
-  );
-  const [file, setFile] = useState<File>();
-  const [isUploading, setIsUploading] = useState(false);
-  const [attachment, setAttachment] = useState<Id<"_storage">>();
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setFile(file);
-    setIsUploading(true);
-    const url = await generateUploadUrl();
-    const res = await fetch(url, {
-      method: "POST",
-      body: file,
-    });
-    const storageId = (await res.json()) as { storageId: Id<"_storage"> };
-    setAttachment(storageId.storageId);
-    setIsUploading(false);
-  };
+  const imageUpload = useImageUpload();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await sendMessage({ dmOrChannelId: id, attachment, content });
+      await sendMessage({
+        dmOrChannelId: id,
+        attachment: imageUpload.storageId,
+        content,
+      });
       setContent("");
-      setAttachment(undefined);
-      setFile(undefined);
+      imageUpload.reset();
     } catch (error) {
       toast.error("Failed to send message", {
         description:
@@ -148,16 +131,17 @@ function MessageInput({ id }: { id: Id<"directMessages" | "channels"> }) {
   return (
     <>
       <form className="flex items-end gap-2 p-4" onSubmit={handleSubmit}>
-        <Button
-          type="button"
-          size="icon"
-          onClick={() => fileInputRef.current?.click()}
-        >
+        <Button type="button" size="icon" onClick={() => imageUpload.open()}>
           <PlusIcon />
           <span className="sr-only">Attach</span>
         </Button>
         <div className="flex flex-col flex-1 gap-2">
-          {file && <ImagePreview file={file} isUploading={isUploading} />}
+          {imageUpload.previewUrl && (
+            <ImagePreview
+              url={imageUpload.previewUrl}
+              isUploading={imageUpload.isUploading}
+            />
+          )}
           <Input
             placeholder="Message..."
             value={content}
@@ -174,12 +158,7 @@ function MessageInput({ id }: { id: Id<"directMessages" | "channels"> }) {
           <span className="sr-only">Send</span>
         </Button>
       </form>
-      <Input
-        type="file"
-        className="hidden"
-        ref={fileInputRef}
-        onChange={handleImageUpload}
-      />
+      <Input {...imageUpload.inputProps} />
     </>
   );
 }
@@ -187,20 +166,15 @@ function MessageInput({ id }: { id: Id<"directMessages" | "channels"> }) {
 //Image Preview
 
 function ImagePreview({
-  file,
+  url,
   isUploading,
 }: {
-  file: File;
+  url: string;
   isUploading: boolean;
 }) {
   return (
     <div className="relative size-40 overflow-hidden rounded border">
-      <Image
-        src={URL.createObjectURL(file)}
-        alt="Attachment"
-        layout="fill"
-        objectFit="cover"
-      />
+      <Image src={url} alt="Attachment" layout="fill" objectFit="cover" />
       {isUploading && (
         <div className="absolute inset-0 flex items-center justify-center bg-background/50">
           <LoaderIcon className="animate-spin size-8" />
