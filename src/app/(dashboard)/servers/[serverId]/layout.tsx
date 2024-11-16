@@ -3,6 +3,7 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { use } from "react";
 import { Id } from "../../../../../convex/_generated/dataModel";
+import { ServerMembers } from "./server-members";
 import { ServerSidebar } from "./server-sidebar";
 
 export default function ServerLayout({
@@ -18,6 +19,7 @@ export default function ServerLayout({
     <SidebarProvider>
       <ServerSidebar id={serverId} />
       {children}
+      <ServerMembers id={serverId} />
     </SidebarProvider>
   );
 }
