@@ -82,3 +82,15 @@ export const assertChannelMember = async (
     }
   }
 };
+
+export const assertServerOwner = async (
+  ctx: AuthenticatedQueryCtx,
+  serverId: Id<"servers">
+) => {
+  const server = await ctx.db.get(serverId);
+  if (!server) {
+    throw new Error("Server not found");
+  } else if (server.ownerId !== ctx.user._id) {
+    throw new Error("You are not the owner of this channel");
+  }
+};
