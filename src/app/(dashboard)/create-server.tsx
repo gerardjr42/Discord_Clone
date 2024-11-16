@@ -14,7 +14,7 @@ import { SidebarMenuButton } from "@/components/ui/sidebar";
 import { useImageUpload } from "@/hooks/use-image-upload";
 import { useMutation } from "convex/react";
 import { ImageIcon, PlusIcon } from "lucide-react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
