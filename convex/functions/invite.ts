@@ -60,6 +60,13 @@ export const join = authenticatedMutation({
   },
   handler: async (ctx, { id }) => {
     const invite = await getInvite(ctx, id);
+    const existingMember = await ctx.db
+      .query("serverMembers")
+      .withIndex("by_serverId_userId", (q) =>
+        q.eq("serverId", invite.serverId).eq("userId", ctx.user._id)
+      )
+      .unique();
+    if (existingMember) return;
     await ctx.db.insert("serverMembers", {
       userId: ctx.user._id,
       serverId: invite.serverId,
